@@ -7,11 +7,11 @@ Let's make a game!
 	version:01
 
 Settings
-	spritesheet:sheet1, 48 by 48, https://cdn.discordapp.com/attachments/760528120029249567/1139867795765612544/sheet1.png
-	spritesheet:sheet2, 48 by 48, https://cdn.discordapp.com/attachments/760528120029249567/1139867795564273684/sheet2.png
-	spritesheet:modesheet, 80 by 50, https://cdn.discordapp.com/attachments/760528120029249567/766084804311515136/modesheet.png
-	spritesheet:buttons, 64 by 64, https://cdn.discordapp.com/attachments/760528120029249567/1139041282661040179/sheet1-7.png.png
-	/*tiling background:https://cdn.discordapp.com/attachments/760528120029249567/1139826183366783076/back_library.png*/
+	spritesheet:sheet1, 48 by 48, https://raw.githubusercontent.com/lemocha7/Mining-Clicker/main/sheet1.png
+	spritesheet:sheet2, 48 by 48, https://raw.githubusercontent.com/lemocha7/Mining-Clicker/main/sheet2.png
+	spritesheet:modesheet, 80 by 50, https://raw.githubusercontent.com/lemocha7/Mining-Clicker/main/modesheet.png
+	spritesheet:buttons, 64 by 64, https://raw.githubusercontent.com/lemocha7/Mining-Clicker/main/button.png
+	/*tiling background:https://raw.githubusercontent.com/lemocha7/Mining-Clicker/main/back_library.png*/
 	stylesheet:stuff/bigBlue.css
 
 Layout
