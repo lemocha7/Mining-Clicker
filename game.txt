@@ -1,0 +1,847 @@
+Let's make a game!
+	name:Mining Clicker
+	author:lemocha
+	desc:Remake of my old Mining Clicker. Early in development.
+	created:10/8/2020 //DD MM YYYY
+	updated:12/8/2023
+	version:01
+
+Settings
+	spritesheet:sheet1, 48 by 48, https://cdn.discordapp.com/attachments/760528120029249567/1139867795765612544/sheet1.png
+	spritesheet:sheet2, 48 by 48, https://cdn.discordapp.com/attachments/760528120029249567/1139867795564273684/sheet2.png
+	spritesheet:modesheet, 80 by 50, https://cdn.discordapp.com/attachments/760528120029249567/766084804311515136/modesheet.png
+	spritesheet:buttons, 64 by 64, https://cdn.discordapp.com/attachments/760528120029249567/1139041282661040179/sheet1-7.png.png
+	/*tiling background:https://cdn.discordapp.com/attachments/760528120029249567/1139826183366783076/back_library.png*/
+	stylesheet:stuff/bigBlue.css
+
+Layout
+	use default
+
+	*modeButton
+		contains:tag:modeButton
+
+CSS
+	#box-modeButton { width: 80px; height: 50px; }
+
+Includes
+	*include building
+		tag:building
+
+	*include reset
+		on reset:
+			this is 0
+		end
+
+	*include upToolsShovel %id %effect %material %desc %effectDesc
+		name:[%material] Shovel
+		desc:a [%effectDesc]
+		// [include upToolsDesc %desc="[%desc]" %material="Dirt & Clay" %effect="[%effect]"]
+		icon:sheet2[0,[%id]]
+		passive:multiply Dirt yield of clickForest by [%effect]
+		passive:multiply Clay yield of clickForest by [%effect]
+		tags:forest upTools resetUp
+
+	*include upToolsAxe %id %effect %material %desc %effectDesc
+		name:[%material] Axe
+		desc:[%desc]<//><b>Effect: </b><.><b>Wood</b>/x[%effect]<.>[%effectDesc]
+		icon:sheet2[1,[%id]]
+		passive:multiply Wood yield of clickForest by [%effect]
+		tags:forest upTools resetUp
+
+	*include upToolsPick %id %effect %material %desc %effectDesc
+		name:[%material] Pickaxe
+		desc:[%desc]<//><b>Effect: </b><.><b>Mine</b>/x[%effect]<.>[%effectDesc]
+		icon:sheet2[2,[%id]]
+		passive:multiply yield of clickMine by [%effect]
+		tags:mine upTools resetUp
+
+	*include upTools %material %tool
+		name:[%material] [%tool]
+
+	*include upToolsDesc %desc %material %effect : [%desc]<//><b>Effect: </b><.><b>[%material]</b>/x[%effect]
+
+
+	*include upDesc %desc %effect
+		desc:[%desc]<//><b>Effect: </b><.>[%effect]
+	*include upDescQuote %desc %effect %quote
+		desc:[%desc]<//><b>Effect: </b><.>[%effect]<q>[%quote]</q>
+
+
+	*include achieveAmount %x="0" %y="0" %tier %material %amount
+		desc:Have <b>[%amount]</b> [%material].
+		req:[%amount] [%material]
+		icon:sheet1[2,(%tier+1)] sheet1[4,(%tier+1)]
+		//sheet1[%x, %y]
+
+	*include bigButton %button
+		no text
+		class:bigButton hasFlares
+		tags:B[%button] [%button] button
+		on click:anim icon wobble
+		icon class:shadowed
+		tooltip origin:bottom
+
+	*include descChanceInc %item %obtain %chance : <b>[%item]</b> can now be [%obtain] at a [%chance]% rate
+	*include descChanceUnlock %item %obtain %chance : Increases chance to [%obtain] <b>[%item]</b> to [%chance]%
+
+
+Buttons
+//RESOURCE
+	*clickForest
+		name:Tapwood Forest
+		desc:Click to dig dirt and chop trees.
+		on click:if (chance(25%) and no Shovel1) yield 1 Dirt
+		on click:if (have Shovel1) yield 1 Dirt
+
+		on click:if (chance(25%) and have Shovel1) yield .5 Clay
+		on click:if (chance(50%) and have Shovel2) yield .5 Clay
+		on click:if (chance(25%) and have Shovel3) yield .5 Clay
+
+		on click:if (chance(5%) and no Axe0) yield 1 Wood
+		on click:if (chance(20%) and have Axe0 and no Axe1) yield 1 Wood
+		on click:if (have Axe1 and no Axe2 and chance(50%)) yield 1 Wood
+		on click:if (have Axe2) yield 1 Wood
+		icon:buttons[0,0]
+		[include bigButton %button="forest"]
+
+	*clickMine
+		name:Click Mines
+		desc:Click to mine stones and ores in caves.
+		on click:if (have Pick1 and chance(25%)) yield 1 Stone
+		on click:if (have Pick2 and chance(25%)) yield 1 Stone
+		on click:if (have Pick3 and chance(50%)) yield 1 Stone
+
+		on click:if (have Pick2 and chance(25%)) yield .5 Iron
+		on click:if (have Pick3 and chance(25%)) yield .5 Iron
+		on click:if (have Pick4 and chance(25%)) yield .5 Iron
+		on click:if (have Pick5 and chance(25%)) yield .5 Iron
+
+		on click:if (have Pick3 and chance(25%)) yield .25 Gold
+		on click:if (have Pick4 and chance(25%)) yield .25 Gold
+		on click:if (have Pick5 and chance(25%)) yield .25 Gold
+
+		on click:if (have Pick4 and chance(10%)) yield .125 Diamond
+		on click:if (have Pick5 and chance(10%)) yield .125 Diamond
+
+		on click:if (have mineOreUp and chance(25%)) yield .25 Gold
+		on click:if (have mineOreUp and chance(13%)) yield .125 Diamond
+		icon:buttons[0,1]
+		[include bigButton %button="mine"]
+
+	*clickPortal
+		name:Click Portal
+		desc:Click to mine the earth!
+		on click:if (fortress=100 and chance(10%)) yield 1 Orbstone
+		on click:if (have runeChance1 and chance(1%)) yield 1 Rune
+		on click:if (have runeChance2 and chance(1%)) yield 1 Rune
+		on click:if (have runeChance3 and chance(3%)) yield 1 Rune
+		icon:buttons[0,3]
+		[include bigButton %button="portal"]
+
+	*clickLibrary
+		name:Click Library
+		desc:(DEBUG) increase ascend levels
+		on click:if (have Book1 and chance(5%)) yield 1 Knowledge
+		on click:yield 1 ascendLevel
+		icon:buttons[0,2]
+		[include bigButton %button="library"]
+
+	*clickAscend
+		name:ascend Thingy
+		desc:(DEBUG) give ascend points
+		on click:yield 1 ascendForest
+		on click:yield 1 ascendMine
+		on click:yield 1 ascendPortal
+		icon:buttons[0,3]
+		[include bigButton %button="ascend"]
+
+
+//MODE
+	*TEMPLATE
+		no text
+		class:modeButton
+		/*on load:
+			show tag:forest
+			hide tag:mine
+			hide tag:library
+			hide tag:portal
+			hide tag:ascend
+		end*/
+
+		*modeForest
+			name:Tapwood Forest
+			icon:modesheet[0,0]
+			//on click: anim icon bounce
+			on click:
+				show tag:forest
+				hide tag:mine
+				hide tag:library
+				hide tag:portal
+				hide tag:ascend
+			end
+		*modeLibrary
+			name:Library
+			icon:modesheet[0,1]
+			on click:
+				hide tag:forest
+				hide tag:mine
+				show tag:library
+				hide tag:portal
+				hide tag:ascend
+			end
+		*modeMine
+			name:Deep Mines
+			icon:modesheet[0,2]
+			on click:
+				hide tag:forest
+				show tag:mine
+				hide tag:library
+				hide tag:portal
+				hide tag:ascend
+			end
+		*modePortal
+			name:Otherworldly Portal
+			icon:modesheet[0,2]
+			on click:
+				hide tag:forest
+				hide tag:mine
+				hide tag:library
+				show tag:portal
+				hide tag:ascend
+			end
+		*modeAscend
+			name:Ascension
+			icon:modesheet[0,2]
+			on click:
+				hide tag:forest
+				hide tag:mine
+				hide tag:library
+				hide tag:portal
+				show tag:ascend
+			end
+
+Resources
+	*TEMPLATE
+		[include reset]
+		class:noBackground
+		hidden when 0
+		tags:forest resetVal
+
+		*Dirt
+			name:Dirt
+			desc:You dug this up from the ground, though are unsure why.
+			icon:sheet1[0,0]
+		*Wood
+			name:Wood
+			desc:Obtained from chopping trees and finding twigs.
+			icon:sheet1[1,0]
+		*Clay
+			name:Clay
+			desc:...
+			icon:sheet1[1,1]
+
+	*TEMPLATE
+		[include reset]
+		class:noBackground
+		hidden when 0
+		tags:mine resetVal
+
+		*Stone
+			name:Stone
+			desc:A common building material
+			icon:sheet1[0,1]
+		*Iron
+			name:Iron
+			desc:
+			icon:sheet1[0,2]
+		*Gold
+			name:Gold
+			desc:...
+			icon:sheet1[0,3]
+		*Diamond|Diamonds
+			name:Diamond
+			desc:This rare and valuble gemstones can make the strongest of tools.
+			icon:sheet1[0,4]
+
+	*TEMPLATE
+		[include reset]
+		class:noBackground
+		hidden when 0
+		tags:portal resetVal
+
+		*Orbstone|Orbstones
+			name:Orbstones
+			desc:...
+			icon:sheet1[0,5]
+		*Rune|Runes
+			name:Runes
+			desc:These magical rune tablets found in the portal dimension have magical abilities
+			icon:sheet1[1,2]
+
+	*TEMPLATE
+		[include reset]
+		class:noBackground
+		hidden when 0
+		tags:library resetVal
+
+		*Knowledge
+			name:Knowledge
+			desc:Unlocks new upgrades!
+			hidden
+
+
+
+	*TEMPLATE
+		hidden
+
+		*achievePoint
+
+
+	*TEMPLATE
+		class:noBackground
+		tag:ascend
+
+		*ascendLevel
+			name:Ascension Level
+		*ascendForest
+			name:Forest Ascention Point
+			icon:sheet2[1,0]
+		*ascendMine
+			name:Mining Ascention Point
+			icon:sheet2[2,0]
+		*ascendPortal
+			name:Portal Ascention Point
+
+		*ascendCount
+
+
+Buildings
+	*onstart
+		hidden
+		on start:
+			hide tag:forest
+			hide tag:mine
+			show tag:library
+			hide tag:portal
+			hide tag:ascend
+		end
+
+
+	*TEMPLATE
+		[include building]
+		[include reset]
+		tags:library resetBuild
+
+		*hack|hacks
+			name:hack|hacks
+			desc:A tiny little cage to hack the game.<//><b>Effect:</b><.>Produces 1 million of everything.
+			icon:sheet2[3,1]
+			cost:0 Dirt
+			on tick:yield 1000000000000000 Dirt
+			on tick:yield 1000000000000000 Wood
+			on tick:yield 1000000000000000 Stone
+			on tick:yield 1000000000000000 Iron
+			on tick:yield 1000000000000000 Gold
+			on tick:yield 1000000000000000 Diamond
+			on tick:yield 1000000000000000 Orbstone
+			on tick:yield 1000000000000000 Rune
+			on tick:yield 1000000000000000 Knowledge
+			unlocked
+
+	*TEMPLATE
+		[include building]
+		[include reset]
+		tags:mine buildMine resetBuild
+
+		*StoneMine
+			name:Stone Mine|Stone Mines
+			desc:Mines focused for getting <b>Stone</b>
+			icon:sheet2[3,0]
+			cost:250 Stone, 1000 Wood
+			on tick:yield 1 Stone
+			req:50 Stone:earned
+
+		*IronMine
+			name:Iron Mine|Iron Mines
+			desc:A mine made just for iron.
+			cost:100 Iron, 5000 Wood
+			on tick:yield 1 Iron
+			on tick:yield 10 Stone
+			req:10 Iron:earned
+
+		*mineDiamond
+			name:Gem Mines|Gem Mines
+			desc:a
+			cost:1000 Gold, 5000 Iron, 20000 Wood
+			on tick:yield 1 Diamond
+			on tick:yield 100 Stone
+			req:have blueprintDiamond
+
+		*fortress
+			name:Portal Maker
+			text:Portal Maker ([this]%)
+			desc:A machine made to create portals to the dimension of the Orbstones, it just needs fuel...<//><b>The machine is [this]% ready...</b>
+			cost:300000000 Dirt, 100 Gold
+			req:70000000 Dirt:earned
+			limit:100
+			cost increase:105%
+
+
+	*TEMPLATE
+		[include building]
+		[include reset]
+		tags:forest buildForest resetBuild
+
+		*WoodTwig
+			name:Twig Finding Group
+			desc:find wood
+			cost:250 Stone, 1000 Wood
+			on tick:yield 0.1 Wood
+			req:2000 Stone:earned
+
+
+	*TEMPLATE
+		[include building]
+		[include reset]
+		tags:portal buildPortal resetBuild
+
+		*multifarm
+			name:Multidimensional Farm|Multidimensional Farms
+			desc:A farm that grows Orbstones.
+			cost:20 Orbstone
+			on tick:yield 1 Orbstone
+			req:1 Orbstone:earned
+		*multimine
+			name:Multidimensional Mine|Multidimensional Mines
+			desc:A mine that mines Orbstones.
+			cost:1000 Orbstone
+			on tick:yield 10 Orbstone
+			req:50 Orbstone:earned
+
+
+	*TEMPLATE
+		tags:ascend
+
+		*ascend
+				name:Rebirth
+				desc:Start the game over.
+				on click:
+					do reset with tag:resetVal
+					do reset with tag:resetBuild
+					lose tag:resetUp
+					this is 0
+					yield 1 ascendCount
+
+					if (have ascendQuick)
+						yield Shovel1
+						yield Axe0
+						yield Axe1
+						yield Pick1
+					end
+					toast Ascended
+				end
+				no buy
+
+Upgrades
+	*TEMPLATE
+		on click:anim glow
+		tags:forest upTools resetUp
+
+		*Shovel1
+			[include upDesc %desc="This crudely made shovel should be more efficient than using your hands, even though it's flimsy." %effectDesc=[include descChanceInc %item="Dirt" %obtain="dig" %chance="100"]]
+			name:Wooden Shovel
+			icon:sheet2[0,0]
+			cost:50 Wood
+			req:15 Wood:earned
+		*Shovel2
+			[include upToolsShovel %id="1" %effect="2" %material="Stone" %desc="You made it out of carving stones. Should be better than that flimsy wooden shovel." %effectDesc="[i:descChanceInc %item="Dirt" %obtain="dig" %chance="100"]"]
+			cost:100 Stone, 100 Wood
+			req:25 Stone:earned and have Shovel1
+		*Shovel3
+			[include upToolsShovel %id="2" %effect="3" %material="Iron" %effectDesc="a[i:descChanceInc %item="Dirt" %obtain="dig" %chance="100"]"]
+			cost:100 Iron, 1000 Wood
+			req:50 Iron:earned and have Shovel2
+		*Shovel4
+			[include upToolsShovel %id="3" %effect="3" %material="Gold"]
+			cost:100 Gold, 2500 Wood
+			req:50 Gold:earned and have Shovel3
+		*Shovel5
+			[include upToolsShovel %id="4" %effect="3" %material="Diamond" %desc="Due to its high quality materials, this finely made shovel can pick up large amounts of dirt without breaking and can pierce the soil of even the coldest forests."]
+			cost:5 Diamond, 10000 Wood
+			req:8 Diamond:earned and have Shovel4
+		*Shovel6
+			[include upToolsShovel %id="5" %effect="3" %material="Otherworldly"]
+			cost:50 Orbstone
+			req:25 Orbstone:earned and have Shovel5
+
+
+	*Axe0
+		[include upDesc %desc="You made this out of a few twigs. If you tried really hard, maybe you could chop a tree." %effect="Increased chance to find <b>Wood</b>"]
+		name:Twig Axe
+		icon:sheet2[6,0]
+		cost:5 Wood
+		req:1 Wood:earned
+	*Axe1
+		[include upDesc %desc="A proper axe fit for cutting trees." %effect="Increased chance to find <b>Wood</b>"]
+		name:Wooden Axe
+		icon:sheet2[1,0]
+		cost:25 Wood
+		req:have Axe0
+	*Axe2
+		[include upToolsAxe %id="1" %effect="2" %material="Stone"]
+		cost:100 Stone, 100 Wood
+		req:25 Stone:earned and have Axe1
+	*Axe3
+		[include upToolsAxe %id="2" %effect="2" %material="Iron"]
+		cost:100 Iron, 100 Wood
+		req:50 Iron:earned and have Axe2
+	*Axe4
+		[include upToolsAxe %id="3" %effect="2" %material="Gold"]
+		cost:100 Gold, 2500 Wood
+		req:50 Gold:earned and have Axe3
+	*Axe5
+		[include upToolsAxe %id="4" %effect="3" %material="Diamond"]
+		cost:5 Diamond, 10000 Wood
+		req:8 Diamond:earned and have Axe4
+	*Axe6
+		[include upToolsAxe %id="5" %effect="4" %material="Otherworldly" %desc="Made out of skinwood and" %effectDesc="<q>WARNING: This axe can, and most likely will, come alive at any moment. <i><b>USE WITH CAUTION!</i></b></q>"]
+		cost:50 Orbstone
+		req:25 Orbstone:earned and have Axe5
+
+
+
+	*TEMPLATE
+		on click:anim glow
+		tags:mine upTools resetUp
+
+		*Pick1
+			[include upDesc %desc="Using the wood you gathered, you managed to make a pickaxe out of wood. Even though its not the most sturdy, it can still mine a few stones." %effect="Unlocks the <b>Mines</b><.><b>Stone</b> can now be mined at a <b>25%</b> rate"]
+			name:Wooden Pickaxe
+			icon:sheet2[2,0]
+			cost:100 Wood
+			req:10 Wood:earned
+			tags:forest mine upTools resetUp
+		*Pick2
+			[include upToolsPick %id="1" %effect="2" %material="Stone" %desc="" %effectDesc="<b>Iron</b> can now be mined at a <b>25%</b> rate"]
+			cost:100 Stone, 100 Wood
+			req:25 Stone:earned and have Pick1
+		*Pick3
+			[include upToolsPick %id="2" %effect="2" %material="Iron" %desc="" %effectDesc="<b>Gold</b> can now be mined at a <b>25%</b> rate"]
+			cost:100 Iron, 100 Wood
+			req:50 Iron:earned and have Pick2
+		*Pick4
+			[include upToolsPick %id="3" %effect="2" %material="Gold" %desc="" %effectDesc="<b>Diamonds</b> can now be mined at a <b>10%</b> rate"]
+			cost:100 Gold, 2500 Wood
+			req:50 Gold:earned and have Pick3
+		*Pick5
+			[include upToolsPick %id="4" %effect="2" %material="Diamond" %desc="This finely crafted gemstone pickaxe mines both stones and ores with ease." %effectDesc="Increases chance to mine <b>Iron</b> to <b>100%</b><.>Increases chance to mine <b>Gold</b> to <b>75%</b><.>Increases chance to mine <b>Diamonds</b> to <b>10%</b>"]
+			cost:5 Diamond, 10000 Wood
+			req:8 Diamond:earned and have Pick4
+		*Pick52
+			[include upToolsPick %id="4" %effect="2" %material="Sharpened Diamond"]
+			cost:10 Diamond, 25000 Wood
+			req:8 Diamond:earned and have Pick5
+		*Pick6
+			[include upToolsPick %id="5" %effect="4" %material="Otherwordly" %desc="Made of otherworldly blood-red stone, neat!" %effectDesc="<q>Once you see it glow, start runnin' for the hills.</q>"]
+			cost:1000 Orbstone, 100000 Wood
+			req:8 Orbstone:earned and have Pick5
+
+
+	*TEMPLATE
+		on click:anim glow
+		tags:library upGen resetUp
+
+		*Book1
+			name:Book Of Knowledge
+			desc:A book... found in the local library...<//><b>Effect:</b><.>Now you can get Knowledge!
+			cost:100 Dirt
+			req:25 Dirt:earned
+
+		*achieveUpgrade
+			[include upDesc %desc="" %effect="+0.1% production and click per achievement unlocked."]
+			name:Achievement Upgrade 1
+			passive:multiply yield of tag:building by ((achievePoint / 10) + 1)
+			passive:multiply yield of tag:button by ((achievePoint / 10) + 1)
+			cost:1000000 Dirt
+			req:5 achievePoint
+
+
+
+	//building upgrades
+	*TEMPLATE
+		on click:anim glow
+		tags:forest upBuild resetUp
+
+		*buildForestUp1
+			[include upDesc %desc="Hire actual profestionals instead of random people." %effect="Forest <b>Buildings</b> x1.5"]
+			name:Higher Standards
+			cost:1000 Iron
+			passive:multiply yield of tag:buildForest by 1.5
+			req:(StoneMine + IronMine>=100)
+		*buildForestUp2
+			[include upDesc %desc="Studies show that higher pay means better work. Might be a good idea, since your employees are getting fed up with you paying them minimum wage." %effect="Forest <b>Buildings</b> x1.5"]
+			name:Better Pay
+			cost:1000 Iron
+			passive:multiply yield of tag:buildForest by 1.5
+			req:(StoneMine + IronMine>=100) and have buildForestUp1
+
+	*TEMPLATE
+		on click:anim glow
+		tags:mine upBuild resetUp
+
+		*buildMineUp1
+			[include upDesc %desc="" %effect="Mine <b>Buildings</b> x2"]
+			name:Sharper Pickaxes
+			cost:1000 Iron
+			passive:multiply yield of tag:buildMine by 2
+			req:(StoneMine + IronMine>=25)
+		*buildMineUp2
+			[include upDesc %desc="" %effect="Mine <b>Buildings</b> x2"]
+			name:Dual Wield
+			cost:1000 Iron
+			passive:multiply yield of tag:buildMine by 2
+			req:(StoneMine + IronMine>=100) and have buildMineUp1
+
+
+//diamond stufs
+
+	*TEMPLATE
+		on click:anim glow
+		tags:mine resetUp
+
+		*mineOreUp
+			[include upDesc %desc="Picture this. Mine only the good stuff, while avoiding the boring stone. What could possibly go wrong?" %effect="Increases chance to mine <b>Gold</b> to <b>100%</b><.>Increases chance to mine <b>Diamonds</b> to <b>33%</b>"]
+			name:Selective Mining
+			cost:100 Diamond
+			req:50 Diamond:earned
+
+		*blueprintDiamond
+			[include upDesc %desc="Your team's mining efforts for diamonds have been lackluster. Go lower and start building mines in deeper gemstone rich environments. They won't be cheap though, requiring a lot of support to prevent collapsing." %effect="Unlocks <b>Gem Mines</b> building."]
+			name:Gem Mine Blueprints
+			cost:10 Diamonds
+			req:1 Diamond:earned
+
+
+
+
+
+//runes
+	*TEMPLATE
+		on click:anim glow
+		tags:portal resetUp
+
+		*runeChance1
+			[include upDesc %desc="Futher research into this dimension has revealed the existance of <b>magical rune tablets</b> lying deep in the sands of red deserts." %effect="<b>Runes</b> can now be excavated at a <b>1%</b> rate"]
+			name:Rune Excavation
+			icon:sheet1[1,2]
+			cost:10000 Orbstone
+			req:1000 Orbstone
+		*runeChance2
+			[include upDesc %desc="After analysing which locations runes wer previously found, researchers noted that runes were more likely to be found near abandoned stone structures. Charts were created for various red deserts denoting the most likely spots to find runes." %effect="Increases chance to excavate <b>Rune</b> to <b>2%</b>"]
+			name:Rune Charts
+			icon:sheet1[1,2]
+			cost:10000 Orbstone
+			req:1000 Orbstone and have runeChance1
+		*runeChance3
+			[include upDesc %desc="After studing physical qualities of runes, researchers found that runes release a small amount of energy while nearby other runes. With this knowledge, it is now possible to create a radar device to scope out and excavate runes." %effect="Increases chance to excavate <b>Rune</b> to <b>5%</b>"]
+			name:Rune Radar
+			icon:sheet1[1,2]
+			cost:10000 Orbstone
+			req:1000 Orbstone and have runeChance2
+
+
+//ASCENSION
+	*TEMPLATE
+		on click:anim glow
+		tags:ascend upAscend
+
+		*ascendStarter
+			[include upDesc %desc="" %effect="Unlocks the <b>Foresting</b> and <b>Mining</b> trees.<.>+1% production and click per ascension level." %quote="Welcome to the Afterlife. Population: You."]
+			name:Rebirth
+			passive:multiply yield of tag:building by ((ascendLevel / 100) + 1)
+			passive:multiply yield of tag:button by ((ascendLevel / 100) + 1)
+			cost:1 ascendForest, 1 ascendMine
+			req:1 ascendMine:earned
+
+		*ascendBuild1
+			name:Blessed Buildings
+			desc:<//><b>Effect:</b><.>all <b>Buildings</b>+5%.<.>1/5 upgrades<q>"Bless you!"</q>
+			passive:multiply yield of tag:building by 1.1
+			cost:2 ascendForest, 2 ascendMine
+			req:have ascendStarter and 1 ascendMine:earned
+		*ascendBuild2
+			name:Blessed Buildings II
+			desc:<//><b>Effect:</b><.>all <b>Buildings</b>/+15%.<.>2/5 upgrades
+			passive:multiply yield of tag:building by 1.15
+			cost:5 ascendForest, 5 ascendMine
+			req:have ascendBuild1
+
+
+		*ascendForestClick1
+			name:Heavenly Axe & Shovel
+			desc:<//><b>Effect:</b><.><b>Forest Click</b>/+25%.<q>"Just get you and a few buds."</q>
+			passive:multiply yield of clickForest by 1.25
+			icon:sheet2[1,6]
+			cost:1 ascendForest
+			req:have ascendStarter and 1 ascendForest:earned
+
+		*ascendForestBuild1
+			name:Heavenly Gathering Team
+			desc:<//><b>Effect:</b><.><b>Forest Buildings</b>/+15%.<.>1/5 upgrades
+			passive:multiply yield of tag:buildForest by 1.15
+			cost:1 ascendForest
+			req:have ascendStarter and 1 ascendForest:earned
+		*ascendForestBuild2
+			name:Heavenly Gathering Team II
+			desc:<//><b>Effect:</b><.><b>Forest Buildings</b>/+25%.<.>2/5 upgrades
+			passive:multiply yield of tag:buildForest by 1.35
+			cost:10 ascendForest
+			req:have ascendForestBuild1
+
+
+		*ascendMineClick1
+			name:Heavenly Pickaxe
+			desc:<//><b>Effect:</b><.><b>Mine Click</b>/+25%.
+			passive:multiply yield of clickMine by 1.25
+			icon:sheet2[2,6]
+			cost:1 ascendMine
+			req:have ascendStarter and 1 ascendMine:earned
+
+		*ascendMineBuild1
+			name:Heavenly Mining Team
+			desc:<//><b>Effect:</b><.><b>Mine Buildings</b>/+15%.<.>1/5 upgrades
+			passive:multiply yield of tag:buildMine by 1.15
+			cost:1 ascendMine
+			req:have ascendStarter and 1 ascendMine:earned
+		*ascendMineBuild2
+			name:Heavenly Mining Team II
+			desc:<//><b>Effect:</b><.><b>Mine Buildings</b>/+35%.<.>2/5 upgrades
+			passive:multiply yield of tag:buildMine by 1.35
+			cost:10 ascendMine
+			req:have ascendMineBuild1
+
+		*ascendQuick
+			[include upDescQuote %desc="Instead of letting them take everything each ascension, you could try and sneak something small. A few twigs in your pocket wouldn't hurt anyone." %effect="Start with a <b>Wooden Shovel</b>, <b>Wooden Axe</b>, and <b>Wooden Pickaxe</b>." %quote="Take that, airport security!"]
+			name:Quick Start
+			cost:25 ascendForest, 25 ascendMine
+			req:10 ascendForest:earned, 10 ascendMine:earned
+
+
+Achievements
+	*TEMPLATE
+		on earn:yield 1 achievePoint
+
+	//UPGRADES
+		*toolAchiev1
+			name:Sticks and Stones
+			desc:Upgrade your tools to <b>Stone</b>. <q>As seen in the song "You Need To Dig Ground".</q>
+			req:have Shovel2, have Axe2, have Pick2
+			icon:sheet1[2,0]
+		*toolAchiev2
+			name:Sharpest Tool in the Shed
+			desc:Upgrade all your tools to <b>Diamond</b>.
+			req:have Shovel5, have Axe5, have Pick5
+		*toolAchiev3
+			name:What a Tool
+			desc:Fully upgrade all of your tools.
+			req:have Shovel6, have Axe6, have Pick6
+
+	//RESOURCES
+		*dirtAchiev1
+			[include achieveAmount %tier="0" %material="Dirt" %x="0" %y="0" %amount="1"]
+			name:dirt achieve 1
+		*dirtAchiev2
+			[include achieveAmount %tier="1" %material="Dirt" %x="0" %y="0" %amount="1000"]
+			name:dirt achieve 2
+		*dirtAchiev3
+			[include achieveAmount %tier="2" %material="Dirt" %x="0" %y="0" %amount="1000000"]
+			name:dirt achieve 3
+
+		*woodAchiev1
+			[include achieveAmount %tier="0" %material="Wood" %amount="1"]
+			name:Look Mom, I found a twig!
+			icon:sheet1[1,0]
+		*woodAchiev2
+			[include achieveAmount %tier="1" %material="Wood" %amount="1000"]
+			name:Wood you rather?
+			icon:sheet1[1,0]
+		*woodAchiev3
+			[include achieveAmount %tier="2" %material="Wood" %amount="1000000"]
+			name:wood achieve 3
+			icon:sheet1[1,0]
+
+		*stoneAchiev1
+			[include achieveAmount %tier="0" %material="Stone" %x="0" %y="1" %amount="1"]
+			name:Stone Age
+		*stoneAchiev2
+			[include achieveAmount %tier="1" %material="Stone" %x="0" %y="1" %amount="1000"]
+			name:Build me a pile of Rocks
+		*stoneAchiev3
+			[include achieveAmount %tier="2" %material="Stone" %x="0" %y="1" %amount="1000000"]
+			name:Cave game
+
+		*ironAchiev1
+			[include achieveAmount %tier="0" %material="Iron" %amount="1"]
+			name:iron achieve 1
+			icon:sheet1[0,2]
+		*ironAchiev2
+			[include achieveAmount %tier="1" %material="Stone" %amount="1000"]
+			name:iron achieve 2
+			icon:sheet1[0,2]
+		*ironAchiev3
+			[include achieveAmount %tier="2" %material="Stone" %amount="1000000"]
+			name:iron achieve 3
+			icon:sheet1[0,2]
+
+		*goldAchiev1
+			[include achieveAmount %tier="0" %material="Gold" %amount="1"]
+			name:gold achieve 1
+			icon:sheet1[0,3]
+		*goldAchiev2
+			[include achieveAmount %tier="1" %material="Gold" %amount="1000"]
+			name:gold achieve 2
+			icon:sheet1[0,3]
+		*goldAchiev3
+			[include achieveAmount %tier="2" %material="Gold" %amount="1000000"]
+			name:gold achieve 3
+			icon:sheet1[0,3]
+
+		*diamondAchiev1
+			[include achieveAmount %tier="0" %material="Diamond" %amount="1"]
+			name:diamond achieve 2
+			icon:sheet1[0,4]
+		*diamondAchiev2
+			[include achieveAmount %tier="1" %material="Diamonds" %amount="1000"]
+			name:diamond achieve 2
+			icon:sheet1[0,4]
+		*diamondAchiev3
+			[include achieveAmount %tier="2" %material="Diamonds" %amount="1000000"]
+			name:Cover me in Diamonds
+			icon:sheet1[0,4]
+
+		*orbstoneAchiev1
+			[include achieveAmount %tier="0" %material="Orbstone" %amount="1"]
+			name:orbstone achieve 1
+			icon:sheet1[0,5]
+		*orbstoneAchiev2
+			[include achieveAmount %tier="1" %material="Orbstones" %amount="1000"]
+			name:orbstone achieve 2
+			icon:sheet1[0,5]
+		*orbstoneAchiev3
+			[include achieveAmount %material="Orbstones" %amount="1000000"]
+			name:orbstone achieve 3
+			icon:sheet1[0,5]
+
+		*runeAchiev
+			[include achieveAmount %tier="0" %material="Runes" %amount="1"]
+			name:Rune wiz
+			icon:sheet1[1,2]
+		*runeAchiev2
+			[include achieveAmount %tier="1" %material="Runes" %amount="1000"]
+			name:Rune champion!
+			icon:sheet1[1,2]
+
+		*fortressAchiev
+			name:Machine Power!
+			desc:You finished powering up the portal machine... <//><b>Effect:</b><.>Unlocks the power of orbstones!
+			req:100 fortress
